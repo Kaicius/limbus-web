@@ -1,0 +1,14 @@
+.passos { margin: 8px 0 14px; padding-left: 20px; color: var(--lc-muted); }
+.passos li + li { margin-top: 2px; }
+
+.registros { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; }
+.registros li { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: baseline; padding: 7px 10px; background: #000; border-left: 4px solid var(--lc-ok); overflow-wrap: anywhere; }
+.registros li.erro { border-left-color: var(--lc-red); }
+.status { font-family: var(--fonte-titulo); font-weight: 700; color: var(--lc-ok); }
+.erro .status { color: var(--lc-red); }
+
+.placar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
+.placar div { background: #000; padding: 10px 12px; border-left: 4px solid var(--lc-line); }
+.placar strong { display: block; font-family: var(--fonte-titulo); font-size: 1.7rem; line-height: 1.1; }
+.placar .aceitas { border-left-color: var(--lc-ok); }
+.placar .recusadas { border-left-color: var(--lc-red); }

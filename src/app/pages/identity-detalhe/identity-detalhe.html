@@ -1,0 +1,271 @@
+<div class="pagina">
+  <a class="voltar" routerLink="/identities">‹ Todas as Identities</a>
+
+  <div class="versao">
+    <span class="troca" role="group" aria-label="Versão da API">
+      <button type="button" class="btn mini" [attr.aria-pressed]="estado.versao() === '1'" (click)="trocarVersao('1')">API v1</button>
+      <button type="button" class="btn mini" [attr.aria-pressed]="estado.versao() === '2'" (click)="trocarVersao('2')">API v2</button>
+    </span>
+    @if (ficha(); as f) {
+      <span class="pequeno">
+        Ficha carregada com <code>X-API-Version: {{ f.versao }}</code> em
+        <strong>{{ f.requisicoes }} {{ f.requisicoes === 1 ? 'requisição' : 'requisições' }}</strong>.
+        @if (f.versao === '1') {
+          Na v1 a Identity vem sozinha; Stats, Sanity, Skills e Passivas são buscados à parte.
+        } @else {
+          Na v2 o mesmo endpoint já devolve a ficha completa.
+        }
+      </span>
+    }
+  </div>
+
+  @if (falha(); as erro) {
+    <div class="falha" role="alert">
+      <span>{{ erro.mensagem }}</span>
+      <button type="button" class="btn secundario mini" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else if (ficha(); as f) {
+    <header class="cabecalho">
+      <div>
+        <div class="linha">
+          <span class="etiqueta raridade" [attr.aria-label]="'Raridade ' + rotuloRaridade[f.identity.rarity]">{{ rotuloRaridade[f.identity.rarity] }}</span>
+          <span class="muted">Uptie {{ f.identity.uptie }} · {{ f.identity.sinner.nome }}</span>
+        </div>
+        <h1>{{ f.identity.nome }}</h1>
+        <div class="linha">
+          @for (t of f.identity.tags; track t.nome) {
+            <span class="etiqueta">{{ t.nome }}</span>
+          }
+        </div>
+      </div>
+      <div class="linha">
+        <button type="button" class="btn secundario" (click)="abrirIdentity()">Editar</button>
+        <button type="button" class="btn perigo" (click)="excluirIdentity()">Excluir</button>
+      </div>
+    </header>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <h2>Stats</h2>
+        <div class="linha">
+          <button type="button" class="btn secundario mini" (click)="abrirStats()">{{ f.stats ? 'Editar' : '+ Cadastrar' }}</button>
+          @if (f.stats; as st) {
+            <button type="button" class="btn perigo mini" (click)="excluirStats(st.id)">Excluir</button>
+          }
+        </div>
+      </div>
+      @if (f.stats; as st) {
+        <dl class="dados">
+          <div><dt>HP</dt><dd>{{ st.hp }}</dd></div>
+          <div><dt>Velocidade</dt><dd>{{ st.speed }}</dd></div>
+          <div><dt>Defesa</dt><dd>{{ st.defense }}</dd></div>
+          <div><dt>Limiar de Stagger</dt><dd>{{ st.staggerThreshold }}</dd></div>
+          <div><dt>Slash</dt><dd>{{ rotuloResistencia[st.resistanceSlash] }}</dd></div>
+          <div><dt>Pierce</dt><dd>{{ rotuloResistencia[st.resistancePierce] }}</dd></div>
+          <div><dt>Blunt</dt><dd>{{ rotuloResistencia[st.resistanceBlunt] }}</dd></div>
+        </dl>
+      } @else {
+        <p class="muted">Esta Identity ainda não tem Stats.</p>
+      }
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <h2>Sanity</h2>
+        <div class="linha">
+          <button type="button" class="btn secundario mini" (click)="abrirSanity()">{{ f.sanity ? 'Editar' : '+ Cadastrar' }}</button>
+          @if (f.sanity; as sa) {
+            <button type="button" class="btn perigo mini" (click)="excluirSanity(sa.id)">Excluir</button>
+          }
+        </div>
+      </div>
+      @if (f.sanity; as sa) {
+        <dl class="dados texto">
+          <div><dt>Panic</dt><dd class="descricao">{{ sa.panicType }}</dd></div>
+          <div><dt>O que aumenta</dt><dd class="descricao">{{ sa.increasingFactors }}</dd></div>
+          <div><dt>O que diminui</dt><dd class="descricao">{{ sa.decreasingFactors }}</dd></div>
+        </dl>
+      } @else {
+        <p class="muted">Esta Identity ainda não tem Sanity.</p>
+      }
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <h2>Skills ({{ f.skills.length }})</h2>
+        <button type="button" class="btn secundario mini" (click)="abrirSkill(null)">+ Nova Skill</button>
+      </div>
+      @if (f.skills.length === 0) {
+        <p class="muted">Nenhuma Skill cadastrada.</p>
+      } @else {
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr><th>Slot</th><th>Nome</th><th>Sin</th><th class="num">Moedas</th><th>Efeito</th><th><span class="muted">Ações</span></th></tr>
+            </thead>
+            <tbody>
+              @for (s of f.skills; track s.id) {
+                <tr>
+                  <td>{{ rotuloSlot[s.slot] }}@if (s.variante > 1) { <span class="muted"> · var. {{ s.variante }}</span> }</td>
+                  <td class="nome">{{ s.nome }}</td>
+                  <td><span class="etiqueta sin" [class]="'sin-' + s.sin">{{ s.sin }}</span></td>
+                  <td class="num">{{ s.quantidadeCoins }}</td>
+                  <td class="descricao">{{ s.descricaoEfeito }}</td>
+                  <td class="acoes">
+                    <button type="button" class="btn secundario mini" (click)="abrirSkill(s)">Editar</button>
+                    <button type="button" class="btn perigo mini" (click)="excluirSkill(s)">Excluir</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <h2>Passivas ({{ f.passives.length }})</h2>
+        <button type="button" class="btn secundario mini" (click)="abrirPassive(null)">+ Nova Passiva</button>
+      </div>
+      @if (f.passives.length === 0) {
+        <p class="muted">Nenhuma Passiva cadastrada.</p>
+      } @else {
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr><th>Tipo</th><th>Nome</th><th>Descrição</th><th><span class="muted">Ações</span></th></tr>
+            </thead>
+            <tbody>
+              @for (p of f.passives; track p.id) {
+                <tr>
+                  <td><span class="etiqueta">{{ p.tipo }}</span></td>
+                  <td class="nome">{{ p.nome }}</td>
+                  <td class="descricao">{{ p.descricao }}</td>
+                  <td class="acoes">
+                    <button type="button" class="btn secundario mini" (click)="abrirPassive(p)">Editar</button>
+                    <button type="button" class="btn perigo mini" (click)="excluirPassive(p)">Excluir</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  } @else if (carregando()) {
+    <p class="carregando">Carregando ficha…</p>
+  }
+</div>
+
+@if (formulario() === 'identity') {
+  @if (ficha(); as f) {
+    <app-identity-form [identity]="f.identity" (salvo)="aoSalvarIdentity()" (fechar)="fecharFormulario()" />
+  }
+}
+
+@if (formulario() === 'stats') {
+  <app-modal [titulo]="editandoId() === null ? 'Cadastrar Stats' : 'Editar Stats'" (fechar)="fecharFormulario()">
+    <form (ngSubmit)="salvarStats()">
+      <div class="grade-form">
+        <label class="campo"><span>HP</span><input type="number" name="hp" [(ngModel)]="stats.hp" required min="1" max="99999" /></label>
+        <label class="campo">
+          <span>Velocidade</span>
+          <input type="text" name="speed" [(ngModel)]="stats.speed" required maxlength="7" placeholder="4-7" />
+          <span class="dica">Formato mín-máx, ex.: 4-7</span>
+        </label>
+        <label class="campo"><span>Defesa</span><input type="number" name="defense" [(ngModel)]="stats.defense" required min="0" max="9999" /></label>
+        <label class="campo"><span>Limiar de Stagger</span><input type="number" name="stagger" [(ngModel)]="stats.staggerThreshold" required min="1" max="99999" /></label>
+        <label class="campo">
+          <span>Resistência a Slash</span>
+          <select name="slash" [(ngModel)]="stats.resistanceSlash">
+            @for (r of resistencias; track r) { <option [ngValue]="r">{{ rotuloResistencia[r] }}</option> }
+          </select>
+        </label>
+        <label class="campo">
+          <span>Resistência a Pierce</span>
+          <select name="pierce" [(ngModel)]="stats.resistancePierce">
+            @for (r of resistencias; track r) { <option [ngValue]="r">{{ rotuloResistencia[r] }}</option> }
+          </select>
+        </label>
+        <label class="campo">
+          <span>Resistência a Blunt</span>
+          <select name="blunt" [(ngModel)]="stats.resistanceBlunt">
+            @for (r of resistencias; track r) { <option [ngValue]="r">{{ rotuloResistencia[r] }}</option> }
+          </select>
+        </label>
+      </div>
+      <ng-container [ngTemplateOutlet]="rodape" />
+    </form>
+  </app-modal>
+}
+
+@if (formulario() === 'sanity') {
+  <app-modal [titulo]="editandoId() === null ? 'Cadastrar Sanity' : 'Editar Sanity'" (fechar)="fecharFormulario()">
+    <form (ngSubmit)="salvarSanity()">
+      <div class="grade-form">
+        <label class="campo largo"><span>Panic</span><textarea name="panic" [(ngModel)]="sanity.panicType" required maxlength="2000"></textarea></label>
+        <label class="campo largo"><span>O que aumenta a Sanity</span><textarea name="aumenta" [(ngModel)]="sanity.increasingFactors" required maxlength="2000"></textarea></label>
+        <label class="campo largo"><span>O que diminui a Sanity</span><textarea name="diminui" [(ngModel)]="sanity.decreasingFactors" required maxlength="2000"></textarea></label>
+      </div>
+      <ng-container [ngTemplateOutlet]="rodape" />
+    </form>
+  </app-modal>
+}
+
+@if (formulario() === 'skill') {
+  <app-modal [titulo]="editandoId() === null ? 'Nova Skill' : 'Editar Skill'" (fechar)="fecharFormulario()">
+    <form (ngSubmit)="salvarSkill()">
+      <div class="grade-form">
+        <label class="campo largo"><span>Nome</span><input type="text" name="nome" [(ngModel)]="skill.nome" required maxlength="255" autocomplete="off" /></label>
+        <label class="campo">
+          <span>Slot</span>
+          <select name="slot" [(ngModel)]="skill.slot">
+            @for (s of slots; track s) { <option [ngValue]="s">{{ rotuloSlot[s] }}</option> }
+          </select>
+        </label>
+        <label class="campo">
+          <span>Sin</span>
+          <select name="sin" [(ngModel)]="skill.sin">
+            @for (s of sins; track s) { <option [ngValue]="s">{{ s }}</option> }
+          </select>
+        </label>
+        <label class="campo"><span>Variante (1 a 10)</span><input type="number" name="variante" [(ngModel)]="skill.variante" required min="1" max="10" /></label>
+        <label class="campo"><span>Moedas (1 a 10)</span><input type="number" name="coins" [(ngModel)]="skill.quantidadeCoins" required min="1" max="10" /></label>
+        <label class="campo largo"><span>Efeito</span><textarea name="efeito" [(ngModel)]="skill.descricaoEfeito" required maxlength="2000"></textarea></label>
+      </div>
+      <ng-container [ngTemplateOutlet]="rodape" />
+    </form>
+  </app-modal>
+}
+
+@if (formulario() === 'passive') {
+  <app-modal [titulo]="editandoId() === null ? 'Nova Passiva' : 'Editar Passiva'" (fechar)="fecharFormulario()">
+    <form (ngSubmit)="salvarPassive()">
+      <div class="grade-form">
+        <label class="campo largo"><span>Nome</span><input type="text" name="nome" [(ngModel)]="passive.nome" required maxlength="255" autocomplete="off" /></label>
+        <label class="campo">
+          <span>Tipo</span>
+          <select name="tipo" [(ngModel)]="passive.tipo">
+            @for (t of tiposPassiva; track t) { <option [ngValue]="t">{{ t }}</option> }
+          </select>
+        </label>
+        <label class="campo largo"><span>Descrição</span><textarea name="descricao" [(ngModel)]="passive.descricao" required maxlength="2000"></textarea></label>
+      </div>
+      <ng-container [ngTemplateOutlet]="rodape" />
+    </form>
+  </app-modal>
+}
+
+<ng-template #rodape>
+  @if (erroForm()) {
+    <p class="erro-form" role="alert" style="margin-top: 12px">{{ erroForm() }}</p>
+  }
+  <div class="rodape-form">
+    @if (editandoId() === null) {
+      <span class="chave" title="Enviada no cabeçalho X-Idempotency-Key">Chave de idempotência: <code>{{ chave() }}</code></span>
+    }
+    <button type="button" class="btn secundario" (click)="fecharFormulario()">Cancelar</button>
+    <button type="submit" class="btn" [disabled]="salvando()">{{ salvando() ? 'Salvando…' : 'Salvar' }}</button>
+  </div>
+</ng-template>

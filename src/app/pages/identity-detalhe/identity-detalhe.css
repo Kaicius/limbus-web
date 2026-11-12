@@ -1,0 +1,18 @@
+.voltar { display: inline-block; margin-bottom: 14px; text-decoration: none; }
+.voltar:hover { text-decoration: underline; }
+
+.cabecalho { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 14px 24px; margin-bottom: 18px; }
+.cabecalho h1 { text-transform: none; letter-spacing: .01em; overflow-wrap: anywhere; margin: 8px 0; }
+
+.versao {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+  background: #000; border: 1px solid var(--lc-line); border-left: 4px solid var(--lc-red);
+  padding: 10px 14px; margin-bottom: 18px;
+}
+.versao .troca { display: inline-flex; }
+.versao .troca button { clip-path: none; }
+.versao .troca button[aria-pressed='false'] { background: var(--lc-panel-2); color: var(--lc-muted); box-shadow: inset 0 0 0 1px var(--lc-line); }
+
+.descricao { white-space: pre-line; overflow-wrap: anywhere; }
+td.nome { font-weight: 700; min-width: 150px; }
+td.descricao { min-width: 220px; }

@@ -1,0 +1,97 @@
+<div class="pagina">
+  <header class="pagina-topo">
+    <div>
+      <h1>Laboratório</h1>
+      <p>Demonstrações dos recursos avançados da API: idempotência, rate limit, versionamento e CORS. Cada bloco mostra o status e os cabeçalhos que a API devolve.</p>
+    </div>
+  </header>
+
+  <section class="painel">
+    <div class="painel-topo"><h2>1. Idempotência · <code>X-Idempotency-Key</code></h2></div>
+    <p>Todo POST precisa de uma chave única. Repetir a mesma chave não cria nada de novo.</p>
+    <ol class="passos">
+      <li>Clique em <strong>Enviar POST</strong>: a API cria o Sinner (201).</li>
+      <li>Clique de novo, sem mudar nada: mesma resposta, com <code>Idempotent-Replayed: true</code>.</li>
+      <li>Mude o nome e envie com a mesma chave: 422, a chave já foi usada com outro corpo.</li>
+      <li>Clique em <strong>Enviar sem chave</strong>: 400, o cabeçalho é obrigatório.</li>
+    </ol>
+    <div class="grade-form">
+      <label class="campo"><span>Nome do Sinner</span><input type="text" name="labNome" [(ngModel)]="nome" maxlength="100" /></label>
+      <label class="campo"><span>Chave de idempotência</span><input type="text" name="labChave" [(ngModel)]="chave" maxlength="255" /></label>
+    </div>
+    <div class="linha" style="margin-top: 12px">
+      <button type="button" class="btn" (click)="enviarPost(true)">Enviar POST</button>
+      <button type="button" class="btn secundario" (click)="novaChave()">Gerar nova chave</button>
+      <button type="button" class="btn secundario" (click)="enviarPost(false)">Enviar sem chave</button>
+      @if (criados().length > 0) {
+        <button type="button" class="btn perigo direita" (click)="limparCriados()">Excluir {{ criados().length }} Sinner(s) de teste</button>
+      }
+    </div>
+    @if (registros().length > 0) {
+      <ul class="registros" aria-live="polite">
+        @for (r of registros(); track $index) {
+          <li [class.erro]="!r.ok">
+            <span class="muted pequeno">{{ r.hora }}</span>
+            <span class="status">{{ r.status }}</span>
+            <span>{{ r.texto }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="painel">
+    <div class="painel-topo"><h2>2. Rate limit · token bucket</h2></div>
+    <p>
+      Cada IP tem um balde de fichas; cada requisição gasta uma e elas voltam aos poucos. Sem fichas, a API responde
+      <code>429 Too Many Requests</code> com <code>Retry-After</code>.
+      @if (estado.limite() !== null) {
+        Agora: <strong>{{ estado.restante() }} de {{ estado.limite() }}</strong> fichas.
+      }
+    </p>
+    <div class="barra" style="margin: 12px 0 0">
+      <label class="campo">
+        <span>Requisições na rajada (até 300)</span>
+        <input type="number" name="labQtd" [(ngModel)]="quantidade" min="1" max="300" />
+      </label>
+      <button type="button" class="btn" [disabled]="disparando()" (click)="dispararRajada()">
+        {{ disparando() ? 'Disparando…' : 'Disparar rajada de GET /tags' }}
+      </button>
+    </div>
+    @if (rajada(); as r) {
+      <div class="placar" aria-live="polite">
+        <div><strong>{{ r.enviadas }}</strong> enviadas</div>
+        <div class="aceitas"><strong>{{ r.aceitas }}</strong> aceitas (200)</div>
+        <div class="recusadas"><strong>{{ r.recusadas }}</strong> recusadas (429)</div>
+        <div><strong>{{ r.retryAfter !== null ? r.retryAfter + 's' : '—' }}</strong> Retry-After</div>
+      </div>
+    }
+  </section>
+
+  <section class="painel">
+    <div class="painel-topo"><h2>3. Versionamento · <code>X-API-Version</code></h2></div>
+    <p>O mesmo <code>GET /identities/&#123;id&#125;</code> responde em formatos diferentes conforme o cabeçalho. A versão 3 não existe: 400.</p>
+    <div class="barra" style="margin: 12px 0 0">
+      <label class="campo">
+        <span>Id da Identity</span>
+        <input type="number" name="labId" [(ngModel)]="identityId" min="1" />
+      </label>
+      <button type="button" class="btn" (click)="buscarVersao('1')">Buscar com v1</button>
+      <button type="button" class="btn" (click)="buscarVersao('2')">Buscar com v2</button>
+      <button type="button" class="btn secundario" (click)="buscarVersao('3')">Buscar com v3</button>
+    </div>
+    @if (respostaVersao(); as r) {
+      <p class="pequeno muted" style="margin: 14px 0 6px">X-API-Version: {{ r.versao }} → status {{ r.status }}</p>
+      <pre class="saida" tabindex="0">{{ r.corpo }}</pre>
+    }
+  </section>
+
+  <section class="painel">
+    <div class="painel-topo"><h2>4. CORS</h2></div>
+    <p>
+      Este front roda em <code>{{ origem }}</code> e a API em <code>{{ apiUrl }}</code>: são origens diferentes. O navegador só
+      entrega as respostas porque a API devolve <code>Access-Control-Allow-Origin</code> para as origens listadas em
+      <code>app.cors.allowed-origins</code>. Se esta origem não estiver na lista, todas as telas mostram "Não foi possível falar com a API".
+    </p>
+  </section>
+</div>

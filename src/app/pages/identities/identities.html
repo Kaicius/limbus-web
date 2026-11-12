@@ -1,0 +1,73 @@
+<div class="pagina">
+  <header class="pagina-topo">
+    <div>
+      <h1>Identities</h1>
+      <p>As versões jogáveis de cada Sinner. Abra uma Identity para ver e editar Stats, Sanity, Skills e Passivas.</p>
+    </div>
+    <button type="button" class="btn" (click)="formAberto.set(true)">+ Nova Identity</button>
+  </header>
+
+  <div class="barra">
+    <label class="campo cresce">
+      <span>Filtrar por Sinner</span>
+      <select [ngModel]="sinnerId() ?? ''" (ngModelChange)="filtrarPorSinner($event)">
+        <option value="">Todos</option>
+        @for (s of sinners(); track s.id) {
+          <option [value]="s.id">{{ s.nome }}</option>
+        }
+      </select>
+    </label>
+    <label class="campo cresce">
+      <span>Filtrar por Tag</span>
+      <select [ngModel]="tag() ?? ''" (ngModelChange)="filtrarPorTag($event)">
+        <option value="">Todas</option>
+        @for (t of tags(); track t.id) {
+          <option [value]="t.nome">{{ t.nome }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (falha(); as erro) {
+    <div class="falha" role="alert">
+      <span>{{ erro.mensagem }}</span>
+      <button type="button" class="btn secundario mini" (click)="carregar(pagina()?.numero ?? 0)">Tentar de novo</button>
+    </div>
+  } @else if (pagina(); as p) {
+    @if (p.itens.length === 0) {
+      <div class="vazio">
+        @if (sinnerId() || tag()) {
+          <strong>Nenhuma Identity com esse filtro</strong>
+          Troque o filtro ou cadastre uma nova Identity.
+        } @else {
+          <strong>Nenhuma Identity cadastrada</strong>
+          Cadastre um Sinner e uma Tag, depois use "Nova Identity".
+        }
+      </div>
+    } @else {
+      <div class="grade-cartoes">
+        @for (identity of p.itens; track identity.id) {
+          <a class="cartao cartao-link" [routerLink]="['/identities', identity.id]">
+            <div class="linha">
+              <span class="etiqueta raridade" [attr.aria-label]="'Raridade ' + rotuloRaridade[identity.rarity]">{{ rotuloRaridade[identity.rarity] }}</span>
+              <span class="muted pequeno">Uptie {{ identity.uptie }} · {{ identity.sinner.nome }}</span>
+            </div>
+            <h3>{{ identity.nome }}</h3>
+            <div class="linha">
+              @for (t of identity.tags; track t.id) {
+                <span class="etiqueta">{{ t.nome }}</span>
+              }
+            </div>
+          </a>
+        }
+      </div>
+      <app-paginador [pagina]="p" (mudar)="carregar($event)" />
+    }
+  } @else if (carregando()) {
+    <p class="carregando">Carregando…</p>
+  }
+</div>
+
+@if (formAberto()) {
+  <app-identity-form [sinnerInicial]="sinnerIdNumero()" (salvo)="aoSalvar($event)" (fechar)="formAberto.set(false)" />
+}

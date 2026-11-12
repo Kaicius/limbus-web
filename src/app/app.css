@@ -1,0 +1,28 @@
+.pular { position: absolute; left: -9999px; top: 0; background: var(--lc-yellow); color: #000; padding: 8px 12px; z-index: 100; }
+.pular:focus { left: 8px; top: 8px; }
+
+.topo { background: #000; border-bottom: 3px solid var(--lc-yellow); position: sticky; top: 0; z-index: 20; }
+.topo-dentro { max-width: 1120px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
+
+.marca { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--lc-text); font-family: var(--fonte-titulo); font-size: 1.35rem; text-transform: uppercase; letter-spacing: .08em; }
+.marca b { color: var(--lc-yellow); font-weight: 700; }
+.marca img { display: block; }
+
+nav { display: flex; flex-wrap: wrap; gap: 2px 4px; }
+nav a {
+  color: var(--lc-muted); text-decoration: none; padding: 6px 10px;
+  font-family: var(--fonte-titulo); text-transform: uppercase; letter-spacing: .08em; font-size: .92rem;
+  border-bottom: 3px solid transparent;
+}
+nav a:hover { color: var(--lc-text); }
+nav a.ativo { color: var(--lc-yellow); border-bottom-color: var(--lc-red); }
+
+.medidores { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; }
+.medidor { font-size: .78rem; padding: 3px 9px; border: 1px solid var(--lc-line); color: var(--lc-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.medidor.alerta { border-color: var(--lc-red); background: var(--lc-red-dk); color: #fff; }
+
+.avisos { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: grid; gap: 8px; width: min(380px, calc(100vw - 32px)); }
+.aviso { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 12px; background: var(--lc-panel-2); border-left: 4px solid var(--lc-yellow); box-shadow: 0 6px 24px rgba(0, 0, 0, .6); overflow-wrap: anywhere; }
+.aviso.ok { border-left-color: var(--lc-ok); }
+.aviso.erro { border-left-color: var(--lc-red); }
+.aviso button { appearance: none; background: none; border: 0; color: var(--lc-muted); font-size: 1.2rem; line-height: 1; cursor: pointer; }

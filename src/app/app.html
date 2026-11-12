@@ -1,0 +1,52 @@
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="topo">
+  <div class="topo-dentro">
+    <a class="marca" routerLink="/">
+      <img src="limbus-logo.png" alt="" width="36" height="36" />
+      <span>Limbus <b>Web</b></span>
+    </a>
+
+    <nav aria-label="Principal">
+      @for (link of links; track link.rota) {
+        <a [routerLink]="link.rota" routerLinkActive="ativo" ariaCurrentWhenActive="page">{{ link.texto }}</a>
+      }
+    </nav>
+
+    <div class="medidores">
+      <span class="medidor" title="Versão enviada no cabeçalho X-API-Version">API v{{ estado.versao() }}</span>
+      @if (estado.limite() !== null) {
+        <span class="medidor" [class.alerta]="esperar() > 0" title="Rate limit: fichas restantes no token bucket">
+          @if (esperar() > 0) {
+            429 · aguarde {{ esperar() }}s
+          } @else {
+            {{ estado.restante() }}/{{ estado.limite() }} fichas
+          }
+        </span>
+      }
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+  <router-outlet />
+</main>
+
+<div class="avisos" aria-live="polite">
+  @for (aviso of avisos.avisos(); track aviso.id) {
+    <div class="aviso" [class]="'aviso ' + aviso.tipo" role="status">
+      <span>{{ aviso.texto }}</span>
+      <button type="button" (click)="avisos.fechar(aviso.id)" aria-label="Fechar aviso">×</button>
+    </div>
+  }
+</div>
+
+@if (confirmar.pergunta(); as pergunta) {
+  <app-modal [titulo]="pergunta.titulo" (fechar)="pergunta.responder(false)">
+    <p>{{ pergunta.texto }}</p>
+    <div class="rodape-form">
+      <button type="button" class="btn secundario" (click)="pergunta.responder(false)">Cancelar</button>
+      <button type="button" class="btn perigo" (click)="pergunta.responder(true)">Excluir</button>
+    </div>
+  </app-modal>
+}
