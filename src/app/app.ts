@@ -23,7 +23,7 @@ export class App implements OnDestroy {
     { rota: '/tags', texto: 'Tags' },
     { rota: '/skills', texto: 'Skills' },
     { rota: '/passives', texto: 'Passivas' },
-    { rota: '/laboratorio', texto: 'Laboratório' },
+    { rota: '/chaves', texto: 'Chaves' },
   ];
 
   private readonly agora = signal(Date.now());
