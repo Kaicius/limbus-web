@@ -1,0 +1,3 @@
+.nova-chave { margin-top: 14px; padding: 12px 14px; background: #000; border-left: 4px solid var(--lc-ok); }
+.nova-chave code { display: block; margin: 6px 0 10px; font-size: 1rem; user-select: all; }
+.revogada td { color: var(--lc-muted); }

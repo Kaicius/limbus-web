@@ -137,3 +137,22 @@ export interface ErroApi {
   mensagem: string;
   retryAfter?: number;
 }
+
+export interface ChaveDeApi {
+  id: number;
+  nome: string;
+  email: string;
+  prefixo: string;
+  ativa: boolean;
+  criadaEm: string;
+  ultimoUso: string | null;
+}
+
+export interface ChaveDeApiCriada {
+  id: number;
+  nome: string;
+  email: string;
+  chave: string;
+  prefixo: string;
+  criadaEm: string;
+}

@@ -14,6 +14,9 @@
     </nav>
 
     <div class="medidores">
+      <a class="medidor" [class.alerta]="!estado.chaveDeApi()" routerLink="/chaves" title="Chave enviada no cabeçalho X-API-Key">
+        {{ estado.chaveDeApi() ? 'Chave definida' : 'Sem chave de API' }}
+      </a>
       <span class="medidor" title="Versão enviada no cabeçalho X-API-Version">API v{{ estado.versao() }}</span>
       @if (estado.limite() !== null) {
         <span class="medidor" [class.alerta]="esperar() > 0" title="Rate limit: fichas restantes no token bucket">

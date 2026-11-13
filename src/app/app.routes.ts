@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
+import { Chaves } from './pages/chaves/chaves';
 import { Identities } from './pages/identities/identities';
 import { IdentityDetalhe } from './pages/identity-detalhe/identity-detalhe';
-import { Laboratorio } from './pages/laboratorio/laboratorio';
 import { Nomes } from './pages/nomes/nomes';
 import { Passives } from './pages/passives/passives';
 import { Skills } from './pages/skills/skills';
@@ -15,6 +15,6 @@ export const routes: Routes = [
   { path: 'identities/:id', component: IdentityDetalhe, title: 'Identity · Limbus Web' },
   { path: 'skills', component: Skills, title: 'Skills · Limbus Web' },
   { path: 'passives', component: Passives, title: 'Passivas · Limbus Web' },
-  { path: 'laboratorio', component: Laboratorio, title: 'Laboratório · Limbus Web' },
+  { path: 'chaves', component: Chaves, title: 'Chaves de API · Limbus Web' },
   { path: '**', redirectTo: 'identities' },
 ];

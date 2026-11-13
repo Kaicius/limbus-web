@@ -4,6 +4,8 @@ import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
 
 import { API_URL, HEADER_IDEMPOTENCIA, HEADER_REPLAY, HEADER_VERSAO } from './api.config';
 import {
+  ChaveDeApi,
+  ChaveDeApiCriada,
   ErroApi,
   Ficha,
   Identity,
@@ -166,6 +168,25 @@ export class LimbusApiService {
   }
   excluirPassive(id: number) {
     return this.http.delete<void>(`${API_URL}/passives/${id}`);
+  }
+
+  listarChaves(): Observable<ChaveDeApi[]> {
+    return this.http.get<ChaveDeApi[]>(`${API_URL}/api-keys`);
+  }
+  gerarChave(nome: string, email: string, chave: string) {
+    return this.criar<ChaveDeApiCriada>('/api-keys', { nome, email }, chave);
+  }
+  minhaChave(): Observable<ChaveDeApi> {
+    return this.http.get<ChaveDeApi>(`${API_URL}/api-keys/me`);
+  }
+  revogarMinhaChave() {
+    return this.http.delete<void>(`${API_URL}/api-keys/me`);
+  }
+  revogarChave(id: number) {
+    return this.http.put<ChaveDeApi>(`${API_URL}/api-keys/${id}/revogar`, null);
+  }
+  excluirChave(id: number) {
+    return this.http.delete<void>(`${API_URL}/api-keys/${id}`);
   }
 
   private pagina<T>(caminho: string, p: Paginacao, extras: Record<string, string> = {}): Observable<Pagina<T>> {

@@ -1,0 +1,115 @@
+<div class="pagina">
+  <header class="pagina-topo">
+    <div>
+      <h1>Chaves de API</h1>
+      <p>Ler é livre. Criar, editar e excluir exigem uma chave, enviada no cabeçalho <code>X-API-Key</code>. Qualquer pessoa pode gerar a sua.</p>
+    </div>
+  </header>
+
+  <section class="painel">
+    <div class="painel-topo"><h2>Gerar uma chave</h2></div>
+    <form (ngSubmit)="gerar()">
+      <div class="grade-form">
+        <label class="campo">
+          <span>Nome</span>
+          <input type="text" name="nome" [(ngModel)]="nome" maxlength="100" autocomplete="name" placeholder="Seu nome ou o da aplicação" />
+        </label>
+        <label class="campo">
+          <span>E-mail</span>
+          <input type="text" name="email" [(ngModel)]="email" maxlength="150" autocomplete="email" inputmode="email" placeholder="voce@exemplo.com" />
+        </label>
+      </div>
+      @if (erroForm()) {
+        <p class="erro-form" role="alert" style="margin-top: 12px">{{ erroForm() }}</p>
+      }
+      <div class="rodape-form" style="margin-top: 12px">
+        <button type="submit" class="btn" [disabled]="gerando()">{{ gerando() ? 'Gerando…' : 'Gerar chave' }}</button>
+      </div>
+    </form>
+
+    @if (criada(); as nova) {
+      <div class="nova-chave" role="status">
+        <strong>Chave de "{{ nova.nome }}" gerada.</strong> Guarde agora: a API armazena só o hash e não mostra este valor de novo.
+        <code>{{ nova.chave }}</code>
+        <div class="linha">
+          <button type="button" class="btn mini" (click)="usar(nova.chave)">Usar neste navegador</button>
+          <button type="button" class="btn secundario mini" (click)="copiar(nova.chave)">Copiar</button>
+          <button type="button" class="btn secundario mini" (click)="criada.set(null)">Fechar</button>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="painel">
+    <div class="painel-topo"><h2>Chave deste navegador</h2></div>
+    <form class="barra" style="margin: 0" (ngSubmit)="salvarChave()">
+      <label class="campo cresce">
+        <span>X-API-Key</span>
+        <input type="text" name="chave" [(ngModel)]="chaveDigitada" autocomplete="off" spellcheck="false" placeholder="lmb_…" />
+      </label>
+      <button type="submit" class="btn">Salvar</button>
+      @if (estado.chaveDeApi()) {
+        <button type="button" class="btn secundario" (click)="removerChave()">Remover</button>
+      }
+    </form>
+    <p class="dica" style="margin-top: 8px">A chave fica guardada só neste navegador e é enviada em todas as chamadas à API.</p>
+
+    @if (erroDaChave()) {
+      <p class="erro-form" role="alert" style="margin-top: 12px">{{ erroDaChave() }}</p>
+    } @else if (minha(); as m) {
+      <dl class="dados" style="margin-top: 14px">
+        <div><dt>Dono</dt><dd>{{ m.nome }}</dd></div>
+        <div><dt>E-mail</dt><dd>{{ m.email }}</dd></div>
+        <div><dt>Prefixo</dt><dd><code>{{ m.prefixo }}…</code></dd></div>
+        <div><dt>Criada em</dt><dd>{{ m.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+        <div><dt>Último uso</dt><dd>{{ m.ultimoUso ? (m.ultimoUso | date: 'dd/MM/yyyy HH:mm') : 'Nunca' }}</dd></div>
+      </dl>
+      <div class="linha" style="margin-top: 14px">
+        <button type="button" class="btn perigo mini" (click)="revogarMinha()">Revogar minha chave</button>
+      </div>
+    } @else if (administrador()) {
+      <p style="margin-top: 12px">Esta é a <strong>chave de administrador</strong>: além de gravar dados, ela lista e revoga as chaves de todos os usuários.</p>
+    } @else if (carregando()) {
+      <p class="carregando">Verificando a chave…</p>
+    }
+  </section>
+
+  @if (administrador()) {
+    <section class="painel">
+      <div class="painel-topo"><h2>Todas as chaves</h2></div>
+      @if (todas(); as lista) {
+        @if (lista.length === 0) {
+          <p class="muted">Nenhuma chave gerada ainda.</p>
+        } @else {
+          <div class="tabela-rolagem">
+            <table>
+              <thead>
+                <tr><th>Dono</th><th>E-mail</th><th>Prefixo</th><th>Situação</th><th>Criada em</th><th>Último uso</th><th><span class="muted">Ações</span></th></tr>
+              </thead>
+              <tbody>
+                @for (c of lista; track c.id) {
+                  <tr [class.revogada]="!c.ativa">
+                    <td><strong>{{ c.nome }}</strong></td>
+                    <td>{{ c.email }}</td>
+                    <td><code>{{ c.prefixo }}…</code></td>
+                    <td><span class="etiqueta">{{ c.ativa ? 'Ativa' : 'Revogada' }}</span></td>
+                    <td>{{ c.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ c.ultimoUso ? (c.ultimoUso | date: 'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
+                    <td class="acoes">
+                      @if (c.ativa) {
+                        <button type="button" class="btn secundario mini" (click)="revogar(c)">Revogar</button>
+                      }
+                      <button type="button" class="btn perigo mini" (click)="excluir(c)">Excluir</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else {
+        <p class="carregando">Carregando…</p>
+      }
+    </section>
+  }
+</div>
